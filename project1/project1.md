@@ -63,14 +63,10 @@ lin_rgb = lin_first;
         <th>bggr</th>
     </tr>
     <tr>
-        <img src='./image/lin_first.png'>
-        <img src='./image/lin_second.png'>
+        <td><img src='./image/lin_first.png'></td>
+        <td><img src='./image/lin_second.png'></td>
     </tr>
 </table>
-
-|rggb|bggr|
-|---|---|
-|![Plot](./image/lin_first.png)|![Plot](./image/lin_second.png)|
 
 ### White balancing  
 #### Grey world assumption  
