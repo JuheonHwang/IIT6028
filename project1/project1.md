@@ -97,6 +97,17 @@ imshow(rgb_white);
 imwrite(rgb_white, 'rgb_white.png');
 ```
 
+<table>
+    <tr>
+        <th>Grey world assumption</th>
+        <th>White world assumption</th>
+    </tr>
+    <tr>
+        <td><img src='./image/rgb_grey.png'></td>
+        <td><img src='./image/rgb_white.png'></td>
+    </tr>
+</table>
+
 ### Demosaicing  
 Use grey world assumption  
 
@@ -110,6 +121,15 @@ figure;
 imshow(rgb_demosaic);
 imwrite(rgb_demosaic, 'rgb_demosaic.png');
 ```
+
+<table>
+    <tr>
+        <th>Demosaicing</th>
+    </tr>
+    <tr>
+        <td><img src='./image/rgb_demosaic.png'></td>
+    </tr>
+</table>
 
 ### Brightness adjustment and gamma correction  
 #### Brightness adjustment  
