@@ -140,6 +140,15 @@ imshow(rgb_adj);
 imwrite(rgb_adj, 'rgb_adj.png');
 ```
 
+<table>
+    <tr>
+        <th>Brightness adjustment</th>
+    </tr>
+    <tr>
+        <td><img src='./image/rgb_adj.png'></td>
+    </tr>
+</table>
+
 #### Gamma correction  
 
 ```matlab
@@ -163,6 +172,15 @@ imshow(non_linear);
 imwrite(non_linear, 'non_linear.png');
 ```
 
+<table>
+    <tr>
+        <th>Gamma correction</th>
+    </tr>
+    <tr>
+        <td><img src='./image/non_linear.png'></td>
+    </tr>
+</table>
+
 ### Compression  
 
 ```matlab
@@ -174,3 +192,40 @@ imwrite(non_linear, 'non_linear_15.jpeg', 'quality', 15);
 imwrite(non_linear, 'non_linear_10.jpeg', 'quality', 10);
 imwrite(non_linear, 'non_linear_5.jpeg', 'quality', 5);
 ```
+
+<table>
+    <tr>
+        <th>Quality 5</th>
+        <th>Quality 10</th>
+        <th>Quality 15</th>
+    </tr>
+    <tr>
+        <td><img src='./image/non_linear_5.png'></td>
+        <td><img src='./image/non_linear_10.png'></td>
+        <td><img src='./image/non_linear_15.png'></td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th>Quality 20</th>
+        <th>Quality 30</th>
+        <th>Quality 50</th>
+    </tr>
+    <tr>
+        <td><img src='./image/non_linear_20.png'></td>
+        <td><img src='./image/non_linear_30.png'></td>
+        <td><img src='./image/non_linear_50.png'></td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th>Quality 95</th>
+        <th>PNG</th>
+    </tr>
+    <tr>
+        <td><img src='./image/non_linear_95.png'></td>
+        <td><img src='./image/non_linear.png'></td>
+    </tr>
+</table>
