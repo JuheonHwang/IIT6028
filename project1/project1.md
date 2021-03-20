@@ -58,6 +58,9 @@ imwrite(lin_second, 'lin_second.png');
 lin_rgb = lin_first;
 ```
 
+![GitHub Logo](/image/lin_first.png)
+Format: ![Alt Text](url)
+
 ### White balancing  
 #### Grey world assumption  
 
