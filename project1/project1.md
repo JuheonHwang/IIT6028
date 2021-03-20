@@ -200,9 +200,9 @@ imwrite(non_linear, 'non_linear_5.jpeg', 'quality', 5);
         <th>Quality 15</th>
     </tr>
     <tr>
-        <td><img src='./image/non_linear_5.png'></td>
-        <td><img src='./image/non_linear_10.png'></td>
-        <td><img src='./image/non_linear_15.png'></td>
+        <td><img src='./image/non_linear_5.jpeg'></td>
+        <td><img src='./image/non_linear_10.jpeg'></td>
+        <td><img src='./image/non_linear_15.jpeg'></td>
     </tr>
 </table>
 
@@ -213,9 +213,9 @@ imwrite(non_linear, 'non_linear_5.jpeg', 'quality', 5);
         <th>Quality 50</th>
     </tr>
     <tr>
-        <td><img src='./image/non_linear_20.png'></td>
-        <td><img src='./image/non_linear_30.png'></td>
-        <td><img src='./image/non_linear_50.png'></td>
+        <td><img src='./image/non_linear_20.jpeg'></td>
+        <td><img src='./image/non_linear_30.jpeg'></td>
+        <td><img src='./image/non_linear_50.jpeg'></td>
     </tr>
 </table>
 
@@ -225,7 +225,7 @@ imwrite(non_linear, 'non_linear_5.jpeg', 'quality', 5);
         <th>PNG</th>
     </tr>
     <tr>
-        <td><img src='./image/non_linear_95.png'></td>
+        <td><img src='./image/non_linear_95.jpeg'></td>
         <td><img src='./image/non_linear.png'></td>
     </tr>
 </table>
