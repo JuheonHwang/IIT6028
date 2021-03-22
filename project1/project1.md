@@ -2,6 +2,10 @@
 ## Implement a basic image processing pipeline  
 ### Initials
 
+먼저 matlab의 imread 함수를 통해 banana_slug.tiff 파일을 불러온 뒤,  
+tiff 파일이 2856 by 4290의 size를 가지는 것을 확인하였고,  
+각 값이 uint16의 class를 가지는 것을 확인할 수 있었다.  
+이를 확인한 뒤, 이미지를 double의 class를 가지도록 하였다.  
 ```matlab
 clc; clear all;
 RAW = imread('banana_slug.tiff');
