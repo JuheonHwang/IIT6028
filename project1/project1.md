@@ -39,8 +39,6 @@ end
 먼저 어떤 bayer pattern을 가지고 있는 지 확인하기 위해서 각 영역들의 값의 차이를 확인하였다.  
 diff_12 = 81160, diff_13 = 80658, diff_14 = 22146, diff_23 = 14524, diff_24 = 76540, diff_34 = 76151의 값을 가지는 것을 확인하였다.  
 따라서 diff_23의 값이 제일 작기 2번과 3번 영역이 초록색이라는 것을 확인할 수 있었다.  
-그런 뒤, rggb인지 bggr인지 확인하기 위해 그 이미지를 출력하여 확인하였는데,  
-rggb에서의 전체적인 이미지가 나타내는 색이 적절하여 rggb의 bayer pattern을 가진다는 것을 확인하였다.  
 ```matlab
 lin1 = linear(1:2:end, 1:2:end);
 lin2 = linear(1:2:end, 2:2:end);
@@ -68,6 +66,9 @@ imwrite(lin_second, 'lin_second.png');
 
 lin_rgb = lin_first;
 ```
+
+그런 뒤, rggb인지 bggr인지 확인하기 위해 그 이미지를 출력하여 확인하였는데,  
+rggb에서의 전체적인 이미지가 나타내는 색이 적절하여 rggb의 bayer pattern을 가진다는 것을 확인하였다.  
 <table>
     <tr>
         <th>rggb</th>
@@ -80,10 +81,13 @@ lin_rgb = lin_first;
 </table>
 
 ### White balancing  
+
+이미지가 전체적으로 초록 빛을 띄고 있기 때문에 white balancing을 통해서 이미지를 자연스럽게 해주었다.  
+White balancing은 green pixel의 값을 기준으로 red와 blue를 조정한다.  
 #### Grey world assumption  
 
-
-
+Grey world assumption은 이미지가 전체적으로 어둡다는 가정을 한다.  
+rgb 세 채널의 각 mean 값을 가지고 이미지를 수정한다.
 ```matlab
 lin_mean = mean(lin_rgb, [1 2]);
 red_grey = lin1 .*(lin_mean(:, :, 2) / lin_mean(:, :, 1));
@@ -98,6 +102,8 @@ imwrite(rgb_grey, 'rgb_grey.png');
 
 #### White world assumption  
 
+White world assumption은 이미지가 전체적으로 밝다는 가정을 한다.  
+rgb 세 채널의 각 max 값을 가지고 이미지를 수정한다.
 ```matlab
 lin_max = max(lin_rgb, [], [1 2]);
 red_white = lin1 .*(lin_max(:, :, 2) / lin_max(:, :, 1));
@@ -110,6 +116,8 @@ imshow(rgb_white);
 imwrite(rgb_white, 'rgb_white.png');
 ```
 
+아래의 표를 통해 grey world assumption과 white world assumption의 결과를 비교하였는데,  
+그 결과가 grey world assumption이 더 보기에 적합한 것 같아서 이 뒤의 과정에서는 grey world의 결과를 사용하였다.  
 <table>
     <tr>
         <th>Grey world assumption</th>
