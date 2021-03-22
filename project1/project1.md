@@ -17,6 +17,8 @@ db = double(RAW);
 
 ### Linearization  
 
+double의 형태를 가지는 이미지의 픽셀 중 15000 이상의 값을 가지는 픽셀은 1을,  
+2047 이하의 값을 가지는 픽셀은 0을 가지도록 하고 그 중간을 linear하게 변환시켜주었다. 
 ```matlab
 linear = zeros(sz(1), sz(2));
 for n = 1:sz(1)
@@ -34,6 +36,11 @@ end
 
 ### Identifying the correct bayer pattern  
 
+먼저 어떤 bayer pattern을 가지고 있는 지 확인하기 위해서 각 영역들의 값의 차이를 확인하였다.  
+diff_12 = 81160, diff_13 = 80658, diff_14 = 22146, diff_23 = 14524, diff_24 = 76540, diff_34 = 76151의 값을 가지는 것을 확인하였다.  
+따라서 diff_23의 값이 제일 작기 2번과 3번 영역이 초록색이라는 것을 확인할 수 있었다.  
+그런 뒤, rggb인지 bggr인지 확인하기 위해 그 이미지를 출력하여 확인하였는데,  
+rggb에서의 전체적인 이미지가 나타내는 색이 적절하여 rggb의 bayer pattern을 가진다는 것을 확인하였다.  
 ```matlab
 lin1 = linear(1:2:end, 1:2:end);
 lin2 = linear(1:2:end, 2:2:end);
@@ -74,6 +81,8 @@ lin_rgb = lin_first;
 
 ### White balancing  
 #### Grey world assumption  
+
+
 
 ```matlab
 lin_mean = mean(lin_rgb, [1 2]);
