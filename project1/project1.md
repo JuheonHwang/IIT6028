@@ -130,8 +130,8 @@ imwrite(rgb_white, 'rgb_white.png');
 </table>
 
 ### Demosaicing  
-Use grey world assumption  
 
+matlab의 interp2 함수를 통해 이미지 demosaic를 하였다.
 ```matlab
 red_demosaic = interp2(red_grey);
 green_demosaic = interp2(green_grey);
@@ -155,6 +155,8 @@ imwrite(rgb_demosaic, 'rgb_demosaic.png');
 ### Brightness adjustment and gamma correction  
 #### Brightness adjustment  
 
+이미지의 밝기를 조절하기 위해 여러 값을 비교하였다.  
+이미지를 3.5배 하여 밝기를 높여 좀 더 적절한 색을 가지는 이미지를 얻을 수 있었다.
 ```matlab
 rgb_adj = rgb_demosaic * 3.5;
 imshow(rgb_adj);
@@ -172,6 +174,8 @@ imwrite(rgb_adj, 'rgb_adj.png');
 
 #### Gamma correction  
 
+Gamma correction을 통해 사람이 보기에 적절한 색을 가지도록 이미지를 조정하였다.  
+Gamma correction의 기준 값은 grayscale의 0.0031308을 기준으로 다른 함수를 사용하도록 하였다.  
 ```matlab
 grayscale_adj = rgb2gray(rgb_adj);
 sz_adj = size(grayscale_adj);
