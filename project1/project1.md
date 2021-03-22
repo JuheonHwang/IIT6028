@@ -208,6 +208,7 @@ imwrite(non_linear, 'non_linear.png');
 
 ### Compression  
 
+여기서 압축률에 따른 결과를 비교하였다. 
 ```matlab
 imwrite(non_linear, 'non_linear_95.jpeg', 'quality', 95);
 imwrite(non_linear, 'non_linear_50.jpeg', 'quality', 50);
@@ -220,37 +221,37 @@ imwrite(non_linear, 'non_linear_5.jpeg', 'quality', 5);
 
 <table>
     <tr>
-        <th>Quality 5</th>
-        <th>Quality 10</th>
-        <th>Quality 15</th>
-    </tr>
-    <tr>
-        <td><img src='./image/non_linear_5.jpeg'></td>
-        <td><img src='./image/non_linear_10.jpeg'></td>
-        <td><img src='./image/non_linear_15.jpeg'></td>
-    </tr>
-</table>
-
-<table>
-    <tr>
-        <th>Quality 20</th>
-        <th>Quality 30</th>
-        <th>Quality 50</th>
-    </tr>
-    <tr>
-        <td><img src='./image/non_linear_20.jpeg'></td>
-        <td><img src='./image/non_linear_30.jpeg'></td>
-        <td><img src='./image/non_linear_50.jpeg'></td>
-    </tr>
-</table>
-
-<table>
-    <tr>
-        <th>Quality 95</th>
         <th>PNG</th>
+        <th>Quality 95</th>
     </tr>
     <tr>
-        <td><img src='./image/non_linear_95.jpeg'></td>
         <td><img src='./image/non_linear.png'></td>
+        <td><img src='./image/non_linear_95.jpeg'></td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th>Quality 50</th>
+        <th>Quality 30</th>
+        <th>Quality 20</th>
+    </tr>
+    <tr>
+        <td><img src='./image/non_linear_50.jpeg'></td>
+        <td><img src='./image/non_linear_30.jpeg'></td>
+        <td><img src='./image/non_linear_20.jpeg'></td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th>Quality 15</th>
+        <th>Quality 10</th>
+        <th>Quality 5</th>
+    </tr>
+    <tr>
+        <td><img src='./image/non_linear_15.jpeg'></td>
+        <td><img src='./image/non_linear_10.jpeg'></td>
+        <td><img src='./image/non_linear_5.jpeg'></td>
     </tr>
 </table>
