@@ -94,7 +94,7 @@ end
 
 ### Temporal filtering & Extracting the frequency band of interest  
 
-이 부분에서는 논문에 주어진 대로 $\alpha$와 low pass, high pass frequency를 적용하여 filter를 구현하였다.  
+이 부분에서는 논문에 주어진 대로 \alpha와 low pass, high pass frequency를 적용하여 filter를 구현하였다.  
 
 
 ```matlab
