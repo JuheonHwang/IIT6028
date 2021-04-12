@@ -177,6 +177,10 @@ end
 close(out);
 ```
 
+아래의 코드가 collapse laplacian pyramid이다.  
+직접 구현한 get image 코드를 통해 주어진 level에 해당하는 이미지를 불어온 뒤,  
+그 이미지를 upsample하여 이전 level의 이미지와 더해 원본의 이미지의 크기로 reconstruction하였다.  
+
 ```matlab
 function result = collapse_laplacian_pyramid(pyramid, level, height, width)
     origin_image = get_image(pyramid, level, height, width);
@@ -189,6 +193,8 @@ function result = collapse_laplacian_pyramid(pyramid, level, height, width)
     result = origin_image;
 end
 ```
+
+아래는 level에 해당하는 이미지를 array로부터 불러오는 get image 함수이다.  
 
 ```matlab
 function result = get_image(pyramid, index, height, width)
