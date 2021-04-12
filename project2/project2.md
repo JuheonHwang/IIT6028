@@ -94,8 +94,9 @@ end
 
 ### Temporal filtering & Extracting the frequency band of interest  
 
-이 부분에서는 논문에 주어진 대로 $ \alpha $와 low pass, high pass frequency를 적용하여 filter를 구현하였다.  
-
+이 부분에서는 논문에 주어진 대로 alpha와 low pass, high pass frequency를 적용하여 filter를 구현하였다.  
+속도와 fft로 얻어지는 결과로 인하여 frame의 time domain을 height, width, channel 마다 퓨리에 변환을 한 뒤,  
+그 변환 값을 filtering하는 것으로 그 결과를 얻어냈다.  
 
 ```matlab
 %% Temporal filtering and Extracting the frequency band of interest
@@ -111,7 +112,8 @@ Hd = butterworthBandpassFilter(Fs, 256, 0.8, 1.0); %face, own
 %Hd = butterworthBandpassFilter(Fs, 256, 2.33, 2.67); %baby2
 fftHd = freqz(Hd, frames + 1);
 
-alpha = [0 0 0 0 100];
+alpha = [0 0 0 100]; % for level 4
+%alpha = [0 0 100]; % for level 3
 
 alpha = alpha / sum(alpha) * 15;
 [~, total_height, total_width, channels] = size(fft_pyramid);
@@ -144,57 +146,64 @@ end
 pyramid_frames = abs(ifft(fft_pyramid, padnum, 1));
 ```
 
-그런 뒤, rggb인지 bggr인지 확인하기 위해 그 이미지를 출력하여 확인하였는데,  
-rggb에서의 전체적인 이미지가 나타내는 색이 적절하여 rggb의 bayer pattern을 가진다는 것을 확인하였다.  
-<table>
-    <tr>
-        <th>rggb</th>
-        <th>bggr</th>
-    </tr>
-    <tr>
-        <td><img src='./image/lin_first.png'></td>
-        <td><img src='./image/lin_second.png'></td>
-    </tr>
-</table>
+### Image reconstruction  
 
-### White balancing  
+Filtering을 통해 얻은 이미지를 아래와 같이 다시 영상으로 얻었다.  
+collapse laplacian pyramid라는 직접 구현한 함수를 통해 filtering한 결과를 다시 합쳤다.  
+그렇게 얻은 array를 영상으로 저장하기 전에 먼저 ntsc2rgb라는 함수를 통해 YIQ space에서 RGB space로 변환하고,  
+그렇게 얻은 이미지가 원본 영상의 크기와 같아지도록 imresize를 해주었다.  
+그런 뒤 VideoWriter와 writeVideo를 통해 영상을 저장하였다.  
 
-이미지가 전체적으로 초록 빛을 띄고 있기 때문에 white balancing을 통해서 이미지를 자연스럽게 해주었다.  
-White balancing은 green pixel의 값을 기준으로 red와 blue를 조정한다.  
-#### Grey world assumption  
-
-Grey world assumption은 이미지가 전체적으로 어둡다는 가정을 한다.  
-rgb 세 채널의 각 mean 값을 가지고 이미지를 수정한다.
 ```matlab
-lin_mean = mean(lin_rgb, [1 2]);
-red_grey = lin1 .*(lin_mean(:, :, 2) / lin_mean(:, :, 1));
-green_grey = green;
-blue_grey = lin4 .*(lin_mean(:, :, 2) / lin_mean(:, :, 3));
-rgb_grey = cat(3, red_grey, green_grey, blue_grey);
+%% Image reconstruction
+result_frames = zeros(frames, v.Height, v.Width, 3);
+for i=1:frames
+    temp = collapse_laplacian_pyramid(squeeze(pyramid_frames(i, :, :, :)), level, v.Height, v.Width);
+    
+    temp = ntsc2rgb(temp);
+    
+    temp = imresize(temp, [v.Height v.width], 'Antialiasing', true);
+    
+    result_frames(i, :, :, :) = temp;
+end
 
-figure;
-imshow(rgb_grey);
-imwrite(rgb_grey, 'rgb_grey.png');
+out = VideoWriter('Result.avi');
+open(out);
+
+for i=1:frames
+    writeVideo(out, squeeze(result_frames(i, :, :, :)));
+end
+
+close(out);
 ```
 
-#### White world assumption  
-
-White world assumption은 이미지가 전체적으로 밝다는 가정을 한다.  
-rgb 세 채널의 각 max 값을 가지고 이미지를 수정한다.
 ```matlab
-lin_max = max(lin_rgb, [], [1 2]);
-red_white = lin1 .*(lin_max(:, :, 2) / lin_max(:, :, 1));
-green_white = green;
-blue_white = lin4 .*(lin_max(:, :, 2) / lin_max(:, :, 3));
-rgb_white = cat(3, red_white, green_white, blue_white);
-
-figure;
-imshow(rgb_white);
-imwrite(rgb_white, 'rgb_white.png');
+function result = collapse_laplacian_pyramid(pyramid, level, height, width)
+    origin_image = get_image(pyramid, level, height, width);
+    for i=1:level-1
+        res_image = get_image(pyramid, level - i, height, width);
+        upsample_image = imresize(origin_image, [size(res_image, 1), size(res_image, 2)], 'Antialiasing', false);
+        origin_image = upsample_image + res_image;
+    end
+    
+    result = origin_image;
+end
 ```
 
-아래의 표를 통해 grey world assumption과 white world assumption의 결과를 비교하였는데,  
-그 결과가 grey world assumption이 더 보기에 적합한 것 같아서 이 뒤의 과정에서는 grey world의 결과를 사용하였다.  
+```matlab
+function result = get_image(pyramid, index, height, width)
+    
+    length = 0;
+    for i=1:index - 1
+        length = length + width;
+        width = ceil(width / 2);
+        height = ceil(height / 2);
+    end
+    
+    result = pyramid(1:height, length + 1:length + width, :);    
+end
+```
+
 <table>
     <tr>
         <th>Grey world assumption</th>
@@ -249,101 +258,3 @@ imwrite(rgb_adj, 'rgb_adj.png');
     </tr>
 </table>
 
-#### Gamma correction  
-
-Gamma correction을 통해 사람이 보기에 적절한 색을 가지도록 이미지를 조정하였다.  
-Gamma correction의 기준 값은 grayscale의 0.0031308을 기준으로 다른 함수를 사용하도록 하였다.  
-```matlab
-grayscale_adj = rgb2gray(rgb_adj);
-sz_adj = size(grayscale_adj);
-non_linear = zeros(sz_adj(1), sz_adj(2), 3);
-
-for n = 1:sz_adj(1)
-    for m = 1:sz_adj(2)
-        if grayscale_adj(n,m) < 0.0031308
-            val = 12.92 * rgb_adj(n, m, :);
-        else
-            val = (1 + 0.055) * power(rgb_adj(n, m, :),1/2.4) - 0.055;
-        end
-        non_linear(n, m, :) = val;
-    end
-end
-
-figure;
-imshow(non_linear);
-imwrite(non_linear, 'non_linear.png');
-```
-
-<table>
-    <tr>
-        <th>Gamma correction</th>
-    </tr>
-    <tr>
-        <td><img src='./image/non_linear.png'></td>
-    </tr>
-</table>
-
-### Compression  
-
-여기서 압축률에 따른 결과를 비교하였다. 
-```matlab
-imwrite(non_linear, 'non_linear_95.jpeg', 'quality', 95);
-imwrite(non_linear, 'non_linear_50.jpeg', 'quality', 50);
-imwrite(non_linear, 'non_linear_30.jpeg', 'quality', 30);
-imwrite(non_linear, 'non_linear_20.jpeg', 'quality', 20);
-imwrite(non_linear, 'non_linear_15.jpeg', 'quality', 15);
-imwrite(non_linear, 'non_linear_10.jpeg', 'quality', 10);
-imwrite(non_linear, 'non_linear_5.jpeg', 'quality', 5);
-```
-오리지널 파일(PNG)과 JPEG 95로 압축한 파일을 봤을 때, 눈으로는 차이를 느끼지 못하였다.  
-오리지널 파일(PNG)의 크기는 16,745,000 byte이고 JPEG 95의 크기는 3,324,321 byte이다.  
-압축률은 3,324,321 / 16,745,000 = 0.1985이다.  
-
-다른 파일들의 압축률에 대해서는,  
-Quality 50: 797,045 / 16,745,000 = 0.0476  
-Quality 30: 584,334 / 16,745,000 = 0.0349  
-Quality 20: 464,095 / 16,745,000 = 0.0277  
-Quality 15: 400,588 / 16,745,000 = 0.0239  
-Quality 10: 329,990 / 16,745,000 = 0.0197  
-Quality 5: 252,052 / 16,745,000 = 0.0151
-임을 확인할 수 있었다.  
-
-압축 Quality가 20까지는 원본 이미지와 큰 차이를 확인할 수 없었다.  
-하지만 그보다 작은 quality에 대해서는 이미지가 왜곡된 것을 쉽게 확인할 수 있었다.  
-
-<table>
-    <tr>
-        <th>PNG</th>
-        <th>Quality 95</th>
-    </tr>
-    <tr>
-        <td><img src='./image/non_linear.png'></td>
-        <td><img src='./image/non_linear_95.jpeg'></td>
-    </tr>
-</table>
-
-<table>
-    <tr>
-        <th>Quality 50</th>
-        <th>Quality 30</th>
-        <th>Quality 20</th>
-    </tr>
-    <tr>
-        <td><img src='./image/non_linear_50.jpeg'></td>
-        <td><img src='./image/non_linear_30.jpeg'></td>
-        <td><img src='./image/non_linear_20.jpeg'></td>
-    </tr>
-</table>
-
-<table>
-    <tr>
-        <th>Quality 15</th>
-        <th>Quality 10</th>
-        <th>Quality 5</th>
-    </tr>
-    <tr>
-        <td><img src='./image/non_linear_15.jpeg'></td>
-        <td><img src='./image/non_linear_10.jpeg'></td>
-        <td><img src='./image/non_linear_5.jpeg'></td>
-    </tr>
-</table>
