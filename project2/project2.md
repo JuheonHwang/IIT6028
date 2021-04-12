@@ -237,8 +237,8 @@ end
         <th>Reconstruction baby2 gif</th>
     </tr>
     <tr>
-        <td><img src='./image/rgb_grey.png'></td>
-        <td><img src='./image/rgb_white.png'></td>
+        <td><img src='./image/face.gif'></td>
+        <td><img src='./image/baby_result.gif'></td>
     </tr>
 </table>
 
@@ -252,6 +252,6 @@ end
         <th>Reconstuction own gif</th>
     </tr>
     <tr>
-        <td><img src='./image/rgb_grey.png'></td>
+        <td><img src='./image/own.gif'></td>
     </tr>
 </table>
