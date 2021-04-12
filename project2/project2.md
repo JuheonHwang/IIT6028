@@ -136,8 +136,7 @@ fftHd_expand(frames+2:end) = fftHd(end-1:-1:2);
 for channel=1:channels
     for w=1:width
         for h=1:height
-            fft_pyramid(:, h, w, channel) = ...
-                fft_pyramid(:, h, w, channel) .* (1 + fftHd_expand * alpha_mat(h, w, channel));
+            fft_pyramid(:, h, w, channel) = fft_pyramid(:, h, w, channel) .* (1 + fftHd_expand * alpha_mat(h, w, channel));
         end
     end
 end
