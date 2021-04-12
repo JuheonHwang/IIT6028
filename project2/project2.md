@@ -92,6 +92,30 @@ function result = laplacian_pyramid(img, level, sigma)
 end
 ```
 
+
+<table>
+    <tr>
+        <th>laplacian level 0</th>
+        <th>laplacian level 1</th>
+    </tr>
+    <tr>
+        <td><img src='./image/laplacian1.png'></td>
+        <td><img src='./image/laplacian2.png'></td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th>laplacian level 2</th>
+        <th>laplacian level 3</th>
+    </tr>
+    <tr>
+        <td><img src='./image/laplacian3.png'></td>
+        <td><img src='./image/laplacian4.png'></td>
+    </tr>
+</table>
+
+
 ### Temporal filtering & Extracting the frequency band of interest  
 
 이 부분에서는 논문에 주어진 대로 alpha와 low pass, high pass frequency를 적용하여 filter를 구현하였다.  
@@ -150,8 +174,7 @@ pyramid_frames = abs(ifft(fft_pyramid, padnum, 1));
 
 Filtering을 통해 얻은 이미지를 아래와 같이 다시 영상으로 얻었다.  
 collapse laplacian pyramid라는 직접 구현한 함수를 통해 filtering한 결과를 다시 합쳤다.  
-그렇게 얻은 array를 영상으로 저장하기 전에 먼저 ntsc2rgb라는 함수를 통해 YIQ space에서 RGB space로 변환하고,  
-그렇게 얻은 이미지가 원본 영상의 크기와 같아지도록 imresize를 해주었다.  
+그렇게 얻은 array를 영상으로 저장하기 전에 먼저 ntsc2rgb라는 함수를 통해 YIQ space에서 RGB space로 변환하였다.  
 그런 뒤 VideoWriter와 writeVideo를 통해 영상을 저장하였다.  
 
 ```matlab
@@ -161,8 +184,6 @@ for i=1:frames
     temp = collapse_laplacian_pyramid(squeeze(pyramid_frames(i, :, :, :)), level, v.Height, v.Width);
     
     temp = ntsc2rgb(temp);
-    
-    temp = imresize(temp, [v.Height v.width], 'Antialiasing', true);
     
     result_frames(i, :, :, :) = temp;
 end
@@ -212,8 +233,8 @@ end
 
 <table>
     <tr>
-        <th>Grey world assumption</th>
-        <th>White world assumption</th>
+        <th>Reconstuction face gif</th>
+        <th>Reconstruction baby2 gif</th>
     </tr>
     <tr>
         <td><img src='./image/rgb_grey.png'></td>
@@ -225,3 +246,12 @@ end
 
 직접 찍은 영상을 통해 eulerian video magnification을 진행하였다.  
 여기서는 level과 filter를 face 영상 파일과 같게 설정한 뒤 그 결과를 확인하였다.  
+
+<table>
+    <tr>
+        <th>Reconstuction own gif</th>
+    </tr>
+    <tr>
+        <td><img src='./image/rgb_grey.png'></td>
+    </tr>
+</table>
