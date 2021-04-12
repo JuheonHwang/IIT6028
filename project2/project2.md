@@ -215,46 +215,7 @@ end
     </tr>
 </table>
 
-### Demosaicing  
+### Capture and motion-magnify your own video  
 
-matlab의 interp2 함수를 통해 이미지 demosaic를 하였다.
-```matlab
-red_demosaic = interp2(red_grey);
-green_demosaic = interp2(green_grey);
-blue_demosaic = interp2(blue_grey);
-rgb_demosaic = cat(3, red_demosaic, green_demosaic, blue_demosaic);
-
-figure;
-imshow(rgb_demosaic);
-imwrite(rgb_demosaic, 'rgb_demosaic.png');
-```
-
-<table>
-    <tr>
-        <th>Demosaicing</th>
-    </tr>
-    <tr>
-        <td><img src='./image/rgb_demosaic.png'></td>
-    </tr>
-</table>
-
-### Brightness adjustment and gamma correction  
-#### Brightness adjustment  
-
-이미지의 밝기를 조절하기 위해 여러 값을 비교하였다.  
-이미지를 3.5배 하여 밝기를 높여 좀 더 적절한 색을 가지는 이미지를 얻을 수 있었다.
-```matlab
-rgb_adj = rgb_demosaic * 3.5;
-imshow(rgb_adj);
-imwrite(rgb_adj, 'rgb_adj.png');
-```
-
-<table>
-    <tr>
-        <th>Brightness adjustment</th>
-    </tr>
-    <tr>
-        <td><img src='./image/rgb_adj.png'></td>
-    </tr>
-</table>
-
+직접 찍은 영상을 통해 eulerian video magnification을 진행하였다.  
+여기서는 level과 filter를 face 영상 파일과 같게 설정한 뒤 그 결과를 확인하였다.  
