@@ -63,218 +63,129 @@ end
 
 ### Poisson blending  
 
-Laplacian pyramid를 (frames, height, width, channels)를 가지는 4D array로 구성하였다.  
-이때, width는 각 pyramid를 이어 붙였기 때문에 pyramid들의 width들의 합이다.  
-Height는 원본의 height를 갖지만, 각 pyramid를 이어 붙였기에 옆으로 갈수록 height가 비어있게 된다.  
-이러한 array는 laplacian pyramid라는 함수를 직접 구현하여 만들었다.  
+이 부분은 두개의 서로 다른 이미지를 붙이며 Poisson blending을 적용한다.  
+Poisson은 Laplace operator를 적용시킨 함수의 값이 0이 아닌 다른 수로 결정되는 것을 뜻 한다.  
+이를 다시 생각하면 편미분을 하여 이계도함수를 구하는 것과 같다는 것이다.  
+편미분을 해서 이계도함수를 구한다는 것을 image에서 생각해본다면  
+하나의 pixel이 있을 때, 그 pixel의 이전과 이후의 값에서 현재 pixel의 값을 뺀 것과 같다.  
+이러한 image domain에서의 poisson을 생각한다면 아래의 구현한 코드와 같이  
+mask에 해당하는 부분은 input의 poisson 값을 가지고 올 수 있다는 것이다.  
+그렇기 때문에 sparse matrix에 현재의 값에는 4를 곱하는 것이고  
+그 pixel의 height의 앞 뒤, width의 앞 뒤 값을 현재 pixel에서 빼주게 된다.  
+그리고 mask에 해당하지 않는 부분은 target의 image를 가져오게 하여  
+sparse matrix와 b를 구성하게 된다.
 ```matlab
-%% Laplacian pyramid
-pyramid = laplacian_pyramid(squeeze(convert_color(1, :, :, :)), level, std);
-[height, width, channels] = size(pyramid);
-pyramid_frames = zeros(frames, height, width, channels);
+function output = poissonBlend(input, mask, target)
 
-for i=1:frames
-    pyramid_frames(i, :, :, :) = laplacian_pyramid(squeeze(convert_color(i, :, :, :)), level, std);
-end
-```
+[height, width, channel] = size(input);
+A = sparse(height*width, height*width);
+b = zeros(height*width, channel);
 
-아래가 구현한 laplacian pyramid 함수이다.  
-imgaussfilt를 통해 미리 정한 standard deviation을 갖도록 gaussian blur를 하였다.  
-그런 뒤, 이 이미지에 downsample을 하고 이를 다시 upsample하여 원래의 이미지와의 차를 구하였다.  
-이렇게 laplacian pyramid를 만들고 그 이미지들을 이어 붙여 array를 만들었다.  
-마지막에 남는 gaussian image도 맨 뒤에 추가하였다.
+im2var = zeros(height, width); 
+im2var(1:height*width) = 1:height*width;
 
-```matlab
-function result = laplacian_pyramid(img, level, sigma)
-    [height, width, ~] = size(img);
-    
-    width = ceil(width * (2 - 1/(2^(level-1))));
-    
-    result = ones(height, width, 3) * 0.5;
+e = 0;
 
-    origin_image = img;
-    width_idx = 1;    
-    for i=1:level-1
-        gauss_image = imgaussfilt(origin_image, sigma);
-        downsample_image = imresize(gauss_image, 0.5, 'Antialiasing', false);
-        
-        upsample_image = imresize(downsample_image, [size(gauss_image, 1), size(gauss_image, 2)], 'Antialiasing', false);
-              
-        res_image = origin_image - upsample_image;
-        
-        [res_height, res_width, ~] = size(res_image);
-
-        result(1:res_height, width_idx:width_idx + res_width - 1, :) = res_image;
-        
-        width_idx = width_idx + res_width;
-        origin_image = downsample_image;
-    end
-
-    [origin_height, origin_width, ~] = size(origin_image);
-    result(1:origin_height, width_idx:width_idx + origin_width - 1, :) = origin_image;
-end
-```
-
-
-<table>
-    <tr>
-        <th>laplacian level 0</th>
-        <th>laplacian level 1</th>
-    </tr>
-    <tr>
-        <td><img src='./image/laplacian1.png'></td>
-        <td><img src='./image/laplacian2.png'></td>
-    </tr>
-</table>
-
-<table>
-    <tr>
-        <th>laplacian level 2</th>
-        <th>laplacian level 3</th>
-    </tr>
-    <tr>
-        <td><img src='./image/laplacian3.png'></td>
-        <td><img src='./image/laplacian4.png'></td>
-    </tr>
-</table>
-
-
-### Temporal filtering & Extracting the frequency band of interest  
-
-이 부분에서는 논문에 주어진 대로 alpha와 low pass, high pass frequency를 적용하여 filter를 구현하였다.  
-속도와 fft로 얻어지는 결과로 인하여 frame의 time domain을 height, width, channel 마다 퓨리에 변환을 한 뒤,  
-그 변환 값을 filtering하는 것으로 그 결과를 얻어냈다.  
-
-```matlab
-%% Temporal filtering and Extracting the frequency band of interest
-Fs = video_fps;
-
-padnum = 2 * frames;
-dummy_size = size(pyramid_frames);
-fft_pyramid = fft(pyramid_frames, padnum, 1);
-
-addpath('./src');
-
-Hd = butterworthBandpassFilter(Fs, 256, 0.8, 1.0); %face, own
-%Hd = butterworthBandpassFilter(Fs, 256, 2.33, 2.67); %baby2
-fftHd = freqz(Hd, frames + 1);
-
-alpha = [0 0 0 100]; % for level 4
-%alpha = [0 0 100]; % for level 3
-
-alpha = alpha / sum(alpha) * 15;
-[~, total_height, total_width, channels] = size(fft_pyramid);
-
-alpha_mat = ones(total_height, total_width, channels);
-alpha_mat(:, :, 1) = zeros(total_height, total_width);
-
-width_idx = 1;
-width_size = v.Width;
-for i=1:level
-    new_idx = width_idx+width_size;
-    alpha_mat(:, width_idx:new_idx-1, :) = alpha(i) * alpha_mat(:, width_idx:new_idx-1, :);
-    width_idx = new_idx;
-    width_size = ceil(width_size/2);
-end
-
-fftHd_expand = zeros(padnum, 1);
-fftHd_expand(1:frames+1) = fftHd;
-fftHd_expand(frames+2:end) = fftHd(end-1:-1:2);
-
-[~, height, width, channels] = size(fft_pyramid);
-for channel=1:channels
-    for w=1:width
-        for h=1:height
-            fft_pyramid(:, h, w, channel) = fft_pyramid(:, h, w, channel) .* (1 + fftHd_expand * alpha_mat(h, w, channel));
+for h = 1:height
+    for w = 1:width
+        e = e + 1;
+        if mask(h,w) == 1
+            A(e, im2var(h, w)) = 4;
+            A(e, im2var(h, w+1)) = -1;
+            A(e, im2var(h, w-1)) = -1;
+            A(e, im2var(h+1, w)) = -1;
+            A(e, im2var(h-1, w)) = -1;
+            b(e, :) = 4 * input(h, w, :) - input(h, w+1, :) - input(h, w-1, :) - input(h+1, w, :) - input(h-1, w, :);
+        else
+            A(e, im2var(h, w)) = 1;
+            b(e, :) = target(h, w, :);
         end
     end
 end
 
-pyramid_frames = abs(ifft(fft_pyramid, padnum, 1));
-```
-
-### Image reconstruction  
-
-Filtering을 통해 얻은 이미지를 아래와 같이 다시 영상으로 얻었다.  
-collapse laplacian pyramid라는 직접 구현한 함수를 통해 filtering한 결과를 다시 합쳤다.  
-그렇게 얻은 array를 영상으로 저장하기 전에 먼저 ntsc2rgb라는 함수를 통해 YIQ space에서 RGB space로 변환하였다.  
-그런 뒤 VideoWriter와 writeVideo를 통해 영상을 저장하였다.  
-
-```matlab
-%% Image reconstruction
-result_frames = zeros(frames, v.Height, v.Width, 3);
-for i=1:frames
-    temp = collapse_laplacian_pyramid(squeeze(pyramid_frames(i, :, :, :)), level, v.Height, v.Width);
-    
-    temp = ntsc2rgb(temp);
-    
-    result_frames(i, :, :, :) = temp;
-end
-
-out = VideoWriter('Result.avi');
-open(out);
-
-for i=1:frames
-    writeVideo(out, squeeze(result_frames(i, :, :, :)));
-end
-
-close(out);
-```
-
-아래의 코드가 collapse laplacian pyramid이다.  
-직접 구현한 get image 코드를 통해 주어진 level에 해당하는 이미지를 불어온 뒤,  
-그 이미지를 upsample하여 이전 level의 이미지와 더해 원본의 이미지의 크기로 reconstruction하였다.  
-
-```matlab
-function result = collapse_laplacian_pyramid(pyramid, level, height, width)
-    origin_image = get_image(pyramid, level, height, width);
-    for i=1:level-1
-        res_image = get_image(pyramid, level - i, height, width);
-        upsample_image = imresize(origin_image, [size(res_image, 1), size(res_image, 2)], 'Antialiasing', false);
-        origin_image = upsample_image + res_image;
-    end
-    
-    result = origin_image;
-end
-```
-
-아래는 level에 해당하는 이미지를 array로부터 불러오는 get image 함수이다.  
-
-```matlab
-function result = get_image(pyramid, index, height, width)
-    
-    length = 0;
-    for i=1:index - 1
-        length = length + width;
-        width = ceil(width / 2);
-        height = ceil(height / 2);
-    end
-    
-    result = pyramid(1:height, length + 1:length + width, :);    
+output = A\b;
+output = reshape(output, [height width channel]);
 end
 ```
 
 <table>
     <tr>
-        <th>Reconstuction face gif</th>
-        <th>Reconstruction baby2 gif</th>
+        <th>poisson blending image</th>
     </tr>
     <tr>
-        <td><img src='./image/face.gif'></td>
-        <td><img src='./image/baby_result.gif'></td>
+        <td><img src='./image/poisson_blending.png'></td>
     </tr>
 </table>
 
-### Capture and motion-magnify your own video  
+### Blending with mixed gradients  
 
-직접 찍은 영상을 통해 eulerian video magnification을 진행하였다.  
-여기서는 level과 filter를 face 영상 파일과 같게 설정한 뒤 그 결과를 확인하였다.  
+이 부분은 source와 target의 gradient 중 더 큰 값을 gradient로 사용하는 mixed gradients이다.  
+
+```matlab
+function output = mixedBlend(input, mask, target)
+
+[height, width, channel] = size(input);
+A = sparse(height*width, height*width);
+b = zeros(height*width, channel);
+
+im2var = zeros(height, width); 
+im2var(1:height*width) = 1:height*width;
+
+e = 0;
+
+for h = 1:height
+    for w = 1:width
+        e = e + 1;
+        if mask(h,w) == 1
+            A(e, im2var(h, w)) = 4; 
+            A(e, im2var(h, w+1)) = -1;
+            A(e, im2var(h, w-1)) = -1;
+            A(e, im2var(h+1, w)) = -1;
+            A(e, im2var(h-1, w)) = -1;
+            
+            if abs(input(h, w, :) - input(h, w+1, :)) > abs(target(h, w, :) - target(h, w+1, :))
+                width_plus_gradient = input(h, w, :) - input(h, w+1, :);
+            else
+                width_plus_gradient = target(h, w, :) - target(h, w+1, :);
+            end
+            
+            if abs(input(h, w, :) - input(h, w-1, :)) > abs(target(h, w, :) - target(h, w-1, :))
+                width_minus_gradient = input(h, w, :) - input(h, w-1, :);
+            else
+                width_minus_gradient = target(h, w, :) - target(h, w-1, :);
+            end
+            
+            if abs(input(h, w, :) - input(h+1, w, :)) > abs(target(h, w, :) - target(h+1, w, :))
+                height_plus_gradient = input(h, w, :) - input(h+1, w, :);
+            else
+                height_plus_gradient = target(h, w, :) - target(h+1, w, :);
+            end
+            
+            if abs(input(h, w, :) - input(h-1, w, :)) > abs(target(h, w, :) - target(h-1, w, :))
+                height_minus_gradient = input(h, w, :) - input(h-1, w, :);
+            else
+                height_minus_gradient = target(h, w, :) - target(h-1, w, :);
+            end
+            
+             b(e, :) = width_plus_gradient + width_minus_gradient + height_plus_gradient + height_minus_gradient;
+            
+        else
+            A(e, im2var(h, w)) = 1;
+            b(e, :) = target(h, w, :);
+        end
+    end
+end
+
+output = A\b;
+output = reshape(output, [height width channel]);
+end
+```
 
 <table>
     <tr>
-        <th>Reconstuction own gif</th>
+        <th>mixed gradients blending image</th>
     </tr>
     <tr>
-        <td><img src='./image/own.gif'></td>
+        <td><img src='./image/mixed_blending.png'></td>
     </tr>
 </table>
