@@ -194,4 +194,21 @@ end
     </tr>
 </table>
 
-### Your own examples
+### Your own examples  
+
+마지막은 다른 사진들을 가지고 직접 poisson blending과 mixed blending을 적용해보았다.  
+아래의 이미지들과 같이 나타나는 것을 확인할 수 있었다.  
+위의 poisson blending과 mixed blending의 결과의 차이와 같이  
+poisson blending은 crop해서 붙여넣는 이미지의 모습이 어느정도 반영되는 것이 보이지만  
+mixed blending의 경우에는 붙여넣는 이미지의 모습에 target의 무늬 등이 크게 반영이 된 것을 확인할 수 있다.
+
+<table>
+    <tr>
+        <th>poisson blending</th>
+        <th>mixed blending</th>
+    </tr>
+    <tr>
+        <td><img src='./image/own_poisson.png'></td>
+        <td><img src='./image/own_mixed.png'></td>
+    </tr>
+</table>
