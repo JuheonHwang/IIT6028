@@ -48,7 +48,9 @@ output = reshape(output, [height width]);
 
 end
 ```
-원본 이미지와 reconstruction한 이미지의 결과는 아래와 같다.
+원본 이미지와 reconstruction한 이미지의 결과는 아래와 같다.  
+error는 0+2.0237e-06i로 약 0의 값을 가진다.  
+따라서 원본의 이미지로 reconstruction했다고 할 수 있다.
 
 <table>
     <tr>
