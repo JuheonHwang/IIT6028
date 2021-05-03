@@ -73,7 +73,7 @@ mask에 해당하는 부분은 input의 poisson 값을 가지고 올 수 있다�
 그렇기 때문에 sparse matrix에 현재의 값에는 4를 곱하는 것이고  
 그 pixel의 height의 앞 뒤, width의 앞 뒤 값을 현재 pixel에서 빼주게 된다.  
 그리고 mask에 해당하지 않는 부분은 target의 image를 가져오게 하여  
-sparse matrix와 b를 구성하게 된다.
+sparse matrix와 gradient value vector b를 구성하게 된다.
 ```matlab
 function output = poissonBlend(input, mask, target)
 
@@ -119,8 +119,10 @@ end
 
 ### Blending with mixed gradients  
 
-이 부분은 source와 target의 gradient 중 더 큰 값을 gradient로 사용하는 mixed gradients이다.  
-
+이 부분은 source와 target의 gradient의 절대값 중 더 큰 값을 gradient로 사용하는 mixed gradients이다.  
+모두 총 4가지 방향의 gradient를 계산하기 때문에,  
+각각의 방향에서의 gradient 절대값들이 source와 target 중 더 큰 값을 적용해주어야 한다.  
+그렇기 때문에 4방향의 gradient를 모두 비교하여 그 중 큰 값을 사용하도록 하였다.
 ```matlab
 function output = mixedBlend(input, mask, target)
 
@@ -189,3 +191,5 @@ end
         <td><img src='./image/mixed_blending.png'></td>
     </tr>
 </table>
+
+### Your own examples
