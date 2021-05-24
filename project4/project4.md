@@ -25,7 +25,7 @@
 
 ### Linearize rendered images  
 
-![Alt text](./image/weight.png)
+![Alt text](./image/weight.PNG)
 
 이 부분은 두개의 서로 다른 이미지를 붙이며 Poisson blending을 적용한다.  
 Poisson은 Laplace operator를 적용시킨 함수의 값이 0이 아닌 다른 수로 결정되는 것을 뜻 한다.  
