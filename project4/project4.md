@@ -2,68 +2,30 @@
 ## HDR imaging  
 ### Use dcraw to convert the RAQ  
 
-먼저 'toy_problem.png' 파일을 통해 이미지의 gradient를 계산하고,  
-이 gradient와 sparse matrix를 통해 원본의 이미지를 reconstruction 하였다.  
-아래의 matlab 코드와 같이 코드를 구성하였는데,  
-행(height)과 열(width)을 분리하여 width의 앞 뒤 pixel 차를 구하고,  
-다음으로 height의 앞 뒤 pixel 차를 구하였다.  
-마지막으로 reconstruct하는 이미지와 원본 이미지의 색의 차이를 minimize하기 위해  
-sparse matrix와 b의 값을 1로 설정하였다.
-```matlab
-function output = toy_reconstruct(input)
+먼저 net 형식의 파일을 dcraw.exe를 통해 tiff의 형식으로 바꾸었다.  
+사용한 option은 아래와 같다.  
+-w: use camera white balance  
+-o 1: output colorspace(sRGB)  
+-W: Don't automatically brighten the image  
+-q 3: Set the interpolation quality high  
+-4: linear 16-bit  
+-T: write tiff instead of ppm  
 
-[height, width, channel] = size(input);
-A = sparse(height*(width-1) + (height-1)*width + 1, height*width);
-b = zeros(height*width, channel);
-
-im2var = zeros(height, width); 
-im2var(1:height*width) = 1:height*width;
-
-e = 0;
-
-for h = 1:height
-    for w = 1:(width-1)
-        e = e + 1;
-        A(e, im2var(h, w+1)) = 1; 
-        A(e, im2var(h, w)) = -1;
-        b(e) = input(h, w+1) -input(h, w);
-    end
-end
-
-for h = 1:(height-1)
-    for w = 1:(width-1)
-        e = e + 1;
-        A(e, im2var(h+1,w)) = 1;
-        A(e, im2var(h,w)) = -1;
-        b(e) = input(h+1, w) - input(h, w);
-    end
-end
-
-e = e + 1;
-A(e, im2var(1, 1)) = 1;
-b(e) = input(1, 1);
-
-output = A\b;
-output = reshape(output, [height width]);
-
-end
-```
-원본 이미지와 reconstruction한 이미지의 결과는 아래와 같다.  
-error는 0+2.0237e-06i로 약 0의 값을 가진다.  
-따라서 원본의 이미지로 reconstruction했다고 할 수 있다.
+아래는 사용 예시이다.  
 
 <table>
     <tr>
-        <th>original image</th>
-        <th>reconstruct image</th>
+        <th>convert nef file to tiff</th>
     </tr>
     <tr>
-        <td><img src='./image/toy_problem.png'></td>
-        <td><img src='./image/toy_recon.png'></td>
+        <td><img src='./image/dcraw.jpg'></td>
     </tr>
 </table>
 
-### Poisson blending  
+
+### Linearize rendered images  
+
+![Alt text](./image/weight.png)
 
 이 부분은 두개의 서로 다른 이미지를 붙이며 Poisson blending을 적용한다.  
 Poisson은 Laplace operator를 적용시킨 함수의 값이 0이 아닌 다른 수로 결정되는 것을 뜻 한다.  
