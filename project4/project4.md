@@ -27,17 +27,25 @@
 
 ![Alt text](./image/weight.PNG)
 
-이 부분은 두개의 서로 다른 이미지를 붙이며 Poisson blending을 적용한다.  
-Poisson은 Laplace operator를 적용시킨 함수의 값이 0이 아닌 다른 수로 결정되는 것을 뜻 한다.  
-이를 다시 생각하면 편미분을 하여 이계도함수를 구하는 것과 같다는 것이다.  
-편미분을 해서 이계도함수를 구한다는 것을 image에서 생각해본다면  
-하나의 pixel이 있을 때, 그 pixel의 이전과 이후의 값에서 현재 pixel의 값을 뺀 것과 같다.  
-이러한 image domain에서의 poisson을 생각한다면 아래의 구현한 코드와 같이  
-mask에 해당하는 부분은 input의 poisson 값을 가지고 올 수 있다는 것이다.  
-그렇기 때문에 sparse matrix에 현재의 값에는 4를 곱하는 것이고  
-그 pixel의 height의 앞 뒤, width의 앞 뒤 값을 현재 pixel에서 빼주게 된다.  
-그리고 mask에 해당하지 않는 부분은 target의 image를 가져오게 하여  
-sparse matrix와 gradient value vector b를 구성하게 된다.
+위와 같은 weighting schemes를 이용하여 rendered image(jpg file)을 아래의 식을 통해 최적화하였다.  
+
+![Alt text](./image/equation.PNG)
+
+optimize한 결과는 아래의 그래프와 같다.  
+
+<table>
+    <tr>
+        <th>g curve tent</th>
+        <th>g curve uniform</th>
+        <th>g curve gaussian</th>
+    </tr>
+    <tr>
+        <td><img src='./image/tent.PNG'></td>
+        <td><img src='./image/uniform.PNG'></td>
+        <td><img src='./image/gaussian.PNG'></td>
+    </tr>
+</table>
+
 ```matlab
 function output = poissonBlend(input, mask, target)
 
