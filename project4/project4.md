@@ -1,6 +1,6 @@
 # Assignment 4  
 ## HDR imaging  
-### Use dcraw to convert the RAQ  
+### Use dcraw to convert the nef  
 
 먼저 net 형식의 파일을 dcraw.exe를 통해 tiff의 형식으로 바꾸었다.  
 사용한 option은 아래와 같다.  
