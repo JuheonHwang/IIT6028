@@ -184,3 +184,29 @@ depth_gray = zeros(s, t);
         <td><img src='./image/img_depth.png'></td>
     </tr>
 </table>
+
+아래는 sigma1이 1 sigma2가 5인 all_focus와 depth 이미지이다.  
+
+<table>
+    <tr>
+        <th>all focus image</th>
+        <th>depth map</th>
+    </tr>
+    <tr>
+        <td><img src='./image/img_all_focus_1_5.png'></td>
+        <td><img src='./image/img_depth_1_5.png'></td>
+    </tr>
+</table>
+
+다음으로는 sigma1이 2.5 sigma2가 10인 all_focus와 depth 이미지이다.  
+
+<table>
+    <tr>
+        <th>all focus image</th>
+        <th>depth map</th>
+    </tr>
+    <tr>
+        <td><img src='./image/img_all_focus_25_10.png'></td>
+        <td><img src='./image/img_depth_25_10.png'></td>
+    </tr>
+</table>
