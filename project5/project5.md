@@ -169,6 +169,7 @@ depth_gray = zeros(s, t);
         depth_gray(s_, t_) = depth_gray(s_, t_) / w;
      end
  end
+ depth_gray = 1 - depth_gray/21;
 ```
 
 아래는 위의 code를 통해 얻은 all focus 이미지와 depth 이미지이다.  
