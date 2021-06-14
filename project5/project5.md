@@ -124,13 +124,17 @@ All-focus image와 depth image를 얻기 위해 먼저 depth에 따른 sharpness
 sharpness map을 구할 때 사용한 gaussian kernel의 sigma2는 5를 사용하였다.  
 
 ![Alt text](./image/luminance.PNG)
+
 ![Alt text](./image/low_frequency.PNG)
+
 ![Alt text](./image/high_frequency.PNG)
+
 ![Alt text](./image/sharpness.PNG)
 
 그렇게 sharpness map을 구한 뒤, image의 모든 depth에 focus가 맞춰진 all focus 이미지와 depth 이미지를 아래의 식들을 통해 구하였다.  
 
 ![Alt text](./image/all_focus.PNG)
+
 ![Alt text](./image/depth.PNG)
 
 아래는 이를 구현한 code이다.  
